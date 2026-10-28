@@ -1,0 +1,13 @@
+# kube-prometheus-stack values for VLE-9
+prometheus:
+  prometheusSpec:
+    # pick up ServiceMonitors/PrometheusRules from every namespace (our app lives in 'healthcare')
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    evaluationInterval: 15s
+    scrapeInterval: 15s
+grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL

@@ -1,0 +1,31 @@
+# Step 9: alerts for unauthorized access, failed logins and high CPU
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: healthcare-security-alerts
+  namespace: healthcare
+spec:
+  groups:
+  - name: healthcare-security
+    rules:
+    - alert: UnauthorizedAccessDetected
+      expr: sum(increase(healthcare_unauthorized_access_total[5m])) > 5
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: More than 5 unauthorized requests to patient records in 5 minutes
+    - alert: FailedLoginsSpike
+      expr: sum(increase(healthcare_failed_logins_total[5m])) > 5
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: Possible brute-force attack - more than 5 failed logins in 5 minutes
+    - alert: HighCPUUsage
+      expr: sum by (pod) (rate(container_cpu_usage_seconds_total{namespace="healthcare",container="app"}[2m])) > 0.2
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: Healthcare app pod {{ $labels.pod }} is using more than 80% of its CPU limit

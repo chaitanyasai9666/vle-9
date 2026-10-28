@@ -1,0 +1,33 @@
+{
+  "title": "Healthcare Security (VLE-9)",
+  "uid": "healthcare-security",
+  "schemaVersion": 39,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    { "type": "stat", "title": "Unauthorized access (5m)", "gridPos": { "x": 0, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 5 } ] } } },
+      "targets": [ { "refId": "A", "expr": "sum(increase(healthcare_unauthorized_access_total[5m]))" } ] },
+    { "type": "stat", "title": "Failed logins (5m)", "gridPos": { "x": 6, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 5 } ] } } },
+      "targets": [ { "refId": "A", "expr": "sum(increase(healthcare_failed_logins_total[5m]))" } ] },
+    { "type": "stat", "title": "Input validation rejections (5m)", "gridPos": { "x": 12, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "refId": "A", "expr": "sum(increase(healthcare_validation_errors_total[5m]))" } ] },
+    { "type": "stat", "title": "Firing security alerts", "gridPos": { "x": 18, "y": 0, "w": 6, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } } },
+      "targets": [ { "refId": "A", "expr": "count(ALERTS{alertstate=\"firing\",alertname=~\"UnauthorizedAccessDetected|FailedLoginsSpike|HighCPUUsage\"}) or vector(0)" } ] },
+    { "type": "timeseries", "title": "Security events per second", "gridPos": { "x": 0, "y": 5, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "legendFormat": "unauthorized", "expr": "sum(rate(healthcare_unauthorized_access_total[1m]))" },
+        { "refId": "B", "legendFormat": "failed logins", "expr": "sum(rate(healthcare_failed_logins_total[1m]))" },
+        { "refId": "C", "legendFormat": "requests", "expr": "sum(rate(healthcare_http_requests_total[1m]))" } ] },
+    { "type": "timeseries", "title": "App CPU usage (cores, limit 0.25)", "gridPos": { "x": 12, "y": 5, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "refId": "A", "legendFormat": "{{pod}}", "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"healthcare\",container=\"app\"}[2m]))" } ] }
+  ]
+}

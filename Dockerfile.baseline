@@ -1,0 +1,7 @@
+# Baseline from the lab manual (Step 5)
+FROM node:18-alpine
+RUN adduser -D appuser
+WORKDIR /app
+COPY app/ .
+USER appuser
+CMD ["node", "server.js"]
